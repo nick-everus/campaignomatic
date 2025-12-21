@@ -1,0 +1,13 @@
+{
+  "name": "open-image-forge-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.0.5"
+  }
+}
