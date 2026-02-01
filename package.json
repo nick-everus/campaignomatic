@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.3.0",
   "scripts": {
-    "dev": "concurrently -n server,client \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev": "npm run dev:free-ports && concurrently -n server,client \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:free-ports": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true; lsof -ti:5174 | xargs kill -9 2>/dev/null || true; sleep 1",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "cd client && npm run dev",
     "install:all": "npm install && npm --prefix server install && npm --prefix client install"
   },
   "devDependencies": {

@@ -5,8 +5,12 @@ import { z } from "zod";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -18,7 +22,8 @@ const SD_WEBUI_URL = process.env.SD_WEBUI_URL || "http://127.0.0.1:7860";
 const PORT = Number(process.env.PORT || 5174);
 const ASSETS_DIR = process.env.ASSETS_DIR || "assets";
 
-const assetsRoot = path.resolve(process.cwd(), "..", ASSETS_DIR);
+// Resolve assets from project root (campaignomatic/assets) so it works regardless of cwd
+const assetsRoot = path.resolve(__dirname, "..", "..", ASSETS_DIR);
 fs.mkdirSync(assetsRoot, { recursive: true });
 
 app.use("/assets", express.static(assetsRoot));
@@ -59,7 +64,11 @@ async function sdTxt2Img(prompt: string, width: number, height: number): Promise
   });
   if (!r.ok) {
     const t = await r.text();
-    throw new Error(`StableDiffusion error ${r.status}: ${t}`);
+    const hint =
+      r.status === 404
+        ? " Start WebUI with the API enabled: export COMMANDLINE_ARGS=\"--api --skip-torch-cuda-test\" then ./webui.sh"
+        : "";
+    throw new Error(`StableDiffusion error ${r.status}: ${t}${hint}`);
   }
   const j: any = await r.json();
   const b64 = j.images?.[0];

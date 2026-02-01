@@ -6,19 +6,29 @@ type GenerateResp = {
   images: { square: string; landscape: string; portrait: string };
 };
 
+const DEFAULT_MARKETING =
+  "Outdoor gear brand for hikers and backpackers. Focus on durability, adventure, and getting off the grid. Target audience: weekend trekkers and thru-hikers who want reliable, lightweight gear.";
+const DEFAULT_IMAGE_PROMPT =
+  "A hiker with a rugged backpack on a mountain trail at sunrise, mist in the valley below, professional outdoor photography, sharp focus, golden hour lighting";
+
 export default function App() {
-  const [marketingDescription, setMarketingDescription] = useState("");
-  const [imagePrompt, setImagePrompt] = useState("");
+  const [marketingDescription, setMarketingDescription] = useState(DEFAULT_MARKETING);
+  const [imagePrompt, setImagePrompt] = useState(DEFAULT_IMAGE_PROMPT);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateResp | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // In dev, talk to the API server directly so it works even if the Vite proxy doesn't
+  const apiBase =
+    (import.meta.env.VITE_API_URL as string) ||
+    (import.meta.env.DEV ? "http://localhost:5174" : "");
 
   async function onGenerate() {
     setLoading(true);
     setErr(null);
     setResult(null);
     try {
-      const r = await fetch("/api/generate", {
+      const r = await fetch(`${apiBase}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ marketingDescription, imagePrompt }),
@@ -27,7 +37,12 @@ export default function App() {
       if (!r.ok) throw new Error(j?.error || `Request failed: ${r.status}`);
       setResult(j);
     } catch (e: any) {
-      setErr(String(e?.message || e));
+      const msg = String(e?.message || e);
+      setErr(
+        msg === "fetch failed" || msg.includes("Failed to fetch")
+          ? "Backend not reachable. In one terminal run: cd campaignomatic && npm run dev:server. Then open http://localhost:5173 and try again."
+          : msg
+      );
     } finally {
       setLoading(false);
     }
