@@ -11,6 +11,9 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
+<img width="524" height="1225" alt="example" src="https://github.com/user-attachments/assets/9aba4aac-28e2-47de-94b2-7d5cde8c5344" />
+
+
 ---
 
 ## ✨ What Is Campaignomatic?
